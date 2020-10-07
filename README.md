@@ -118,13 +118,13 @@ T is allowed to upgrade a S(T) lock to X(T) lock if he's the only transaction ho
 # Two Phase Locking Protocol
 A transaction is said to follow Two Phase Locking protocol if Locking and Unlocking can be done in two phases.
 1. Growing Phase: New locks on data items may be acquired but none can be released.
-2. Shrinking Phase: Existing locks may be released but no new locks can be acquired.
+2. Shrinking Phase: Existing locks may be released but no new locks can be acquired.  
 Note – If lock conversion is allowed, then upgrading of lock( from S(a) to X(a) ) is allowed in Growing Phase and downgrading of lock (from X(a) to S(a)) must be done in shrinking phase.
 ![Locking picture](https://i.imgur.com/WyrYwHe.png)
 
 Disadvantages:
-Cascading Rollback is possible under 2-PL.
-Deadlocks and Starvation is possible.
+1. Cascading Rollback is possible under 2-PL.  
+2. Deadlocks and Starvation is possible.  
 ![scenario of dirty reads](https://www.geeksforgeeks.org/wp-content/uploads/12122.png)
 
 Solution:
@@ -133,8 +133,28 @@ Solution:
 3. Conservative 2-PL - all the items it access before the Transaction begins execution. If it cannot lock, it waits
 
 # Time Phase Locking Protocol
-The main idea for this protocol is to order the transactions based on their Timestamps. Each transaction is given a timestamp when they enter the system.
-***W_TS(X)** is the largest timestamp of any transaction that executed write(X) successfully.
-**R_TS(X)** is the largest timestamp of any transaction that executed read(X) successfully.
+The main idea for this protocol is to order the transactions based on their Timestamps. Each transaction is given a timestamp when they enter the system.  
+**W_TS(X)** is the largest timestamp of any transaction that executed write(X) successfully.  
+**R_TS(X)** is the largest timestamp of any transaction that executed read(X) successfully.  
 
+if latest successful is more than timestamp of transaction, abort and rollback.
 f R_TS(X) > TS(T) or if W_TS(X) > TS(T), then abort and rollback T and reject the operation
+
+## Data structure used in Lock Manager
+The data structure required for implementation of locking is called as Lock table.
+
+1. It is a hash table where name of data items are used as hashing index.
+2. Each locked data item has a linked list associated with it.
+3. Every node in the linked list represents the transaction which requested for lock, mode of lock requested (mutual/exclusive) and current status of the request (granted/waiting).
+4. Every new lock request for the data item will be added in the end of linked list as a new node.
+Collisions in hash table are handled by technique of separate chaining.
+
+# Working of Lock Manager –
+1. Initially the table is empty
+2. When a new lock request is received for transaction T:
+  - Item is not locked, add a linked list and grant the lock
+  - Item is locked, add a new node
+3. If the lock mode requested is compatible with the transaction lock, T will acquire the lock and become `granted`, else it will be `waiting`
+4. If an item wants to unlock the lock, it will send a request and the lock manager will remove the node. Lock will be granted to next item in the node list.
+5. If the transaction is aborted, all the waiting request by T will be deleted from the lock table. Once completed, locks will be released.
+![Lock table](https://media.geeksforgeeks.org/wp-content/uploads/Slide1-4.jpg)
