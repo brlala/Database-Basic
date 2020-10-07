@@ -36,11 +36,49 @@ SAGA, it's a really long transaction which for any point that may fail, for exam
 *Rollback*: If a transaction is not able to execute all operations successfully, all the changes made by transaction are undone.
 
 Properties of a transaction
-*Atomicity*: As a transaction is set of logically related operations, either all of them should be executed or none. A debit transaction discussed above should either execute all three operations or none.
+1. **Atomicity**: As a transaction is set of logically related operations, either all of them should be executed or none. A debit transaction discussed above should either execute all three operations or none.
     - Abort: If a transaction aborts, changes made to database are not visible.
     - Commit: If a transaction commits, changes made are visible.
-*Consistency*: Database must be consistent before and after the trnasaction.
-*Isolation*: Result of a transaction should not be visible to others before transaction is committed (Dirty reads)
+2. **Consistency**: Database must be consistent before and after the trnasaction.
+3. **Isolation**: Result of a transaction should not be visible to others before transaction is committed (Dirty reads)
     - This property ensures that the execution of transactions concurrently will result in a state that is equivalent to a state achieved these were executed serially in some order.
-*Durable*: Once database has committed a transaction, the changes made by the transaction should be permanent.
+4. **Durable**: Once database has committed a transaction, the changes made by the transaction should be permanent.
     - persist even if a system failure occurs.
+
+## Schedule
+A schedule is a series of operations from one or more transactions. A schedule can be of two types:
+1. Serial Schedule: When one transaction completely executes before starting another transaction, the schedule is called serial schedule
+2. Concurrent Schedule: When operations of a transaction are interleaved with operations of other transactions of a schedule.
+
+## Database Recovery techniques
+Recovery techniques are heavily dependent upon on a special file known as **system log**. It contains the start and end of each transaction and any updates which occur. It can be used incase of recovery or failure. A transaction reaches it's commit point when all operations execute successfully.
+1. Undoing - if atranscation crashes, recovery manager will undo transaction
+2. Deferred update - does not update database until a transaction reaches it's commit point
+3. Immediate Update - database is immediately updated, but there is an additional log file for roll back/undo in case
+4. Caching/Buffering - data items to be updated are cached into main memory before written back to disk
+5. shadow paging - the current directory is copied into shadow copy. A shadow page contains all updates which will be written to disk once it is ready to become durable.
+
+## Transaction Isolation Levels
+# Phenomena
+1. Dirty Read - A dirty read is when a transaction reads data that has not yet been committed. If transaction 1 rolls back a data, but transaction 2 reads the updated data.
+2. Non Repeatable Read - When a transaction reads the same row twice and get different data. Transaction 1 read data while T2 writes. T1(R) -> T2(W) -> T1(R')
+3. Phantom Read - Same as dirty read but happens on committed data.
+
+# Isolation Level
+1. Read Uncommitted - Lowest isolation level, one transaction may read not yet committed changes(allowing dirty read)
+2. Read Commmitted - Guarantees any data read is committed at the moment of read. Holds a read or write lock on the current row, hence prevent other transactions from reading, updating or deleting it
+3. Repeatable Read - Most Restrictive Isolation level. It holds read locks on all row references and write locks on all CUD operation. Other transaction cannot do CRUD, avoid non-repeatable read.
+4. Serializable - Highest isolation level, an execution of operations in which concurrently executing transactions appears to be serially executing.
+![Isolation Level](https://media.geeksforgeeks.org/wp-content/cdn-uploads/transactnLevel.png)
+
+## Types of Schedules in DBMS
+![Serial Schedule](https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190813142109/Types-of-schedules-in-DBMS-1.jpg)
+1. Serial Schedules - no transaction starts until another completes
+2. Non-Serial Schedules - Transactions are interleaved
+  - Serializable Schedule
+    - Conflict Serializable, can be converted to serial schedule by swapping operations
+    - View Serializable, cannot contain blind writes
+  - Non-Serilizable
+    - Recoverable Schedules - Cascading Schedule(T1->T2->T3) T3 Fail will cause roll backs, Cascadeless Schedule(only read data when previous transaction commits), Strict Schedule(even read are locked)
+    
+## Deadlocks
