@@ -73,6 +73,12 @@ Recovery techniques are heavily dependent upon on a special file known as **syst
 4. Serializable - Highest isolation level, an execution of operations in which concurrently executing transactions appears to be serially executing.
 ![Isolation Level](https://media.geeksforgeeks.org/wp-content/cdn-uploads/transactnLevel.png)
 
+Read committed is an isolation level that guarantees that any data read was committed at the moment is read. It simply restricts the reader from seeing any intermediate, uncommitted, 'dirty' read. It makes no promise whatsoever that if the transaction re-issues the read, will find the Same data, data is free to change after it was read.
+
+Repeatable read is a higher isolation level, that in addition to the guarantees of the read committed level, it also guarantees that any data read cannot change, if the transaction reads the same data again, it will find the previously read data in place, unchanged, and available to read.
+
+The next isolation level, serializable, makes an even stronger guarantee: in addition to everything repeatable read guarantees, it also guarantees that no new data can be seen by a subsequent read.
+
 ## Types of Schedules in DBMS
 ![Serial Schedule](https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190813142109/Types-of-schedules-in-DBMS-1.jpg)
 1. Serial Schedules - no transaction starts until another completes
