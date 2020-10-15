@@ -93,7 +93,7 @@ The next isolation level, serializable, makes an even stronger guarantee: in add
 Two or more transactions waiting indefinitely for one another to give up locks. T1 holds a lock on some rows to update. T2 holds the lock for the rows that T1 needs, but need to update the row that T1 is holding. All activity will come to a halt until one transaction aborts.
 Strategies:  
 **Deadlock Avoidance** is always better than restarting or aborting the database. Avoidance is suitable for smaller database while deadlock prevention is suitable for larger database. It can be done using application consistent logic, T1 always happen before T2  
-**Deadlock Detection** The DBMS should detect the transaction involved in the deadlock using Wait-For-Graph! Cyclic Detection algorithm involves tortoise and hare algorithm[Wait-For-Graph](https://media.geeksforgeeks.org/wp-content/cdn-uploads/transaction1.png) 
+**Deadlock Detection** The DBMS should detect the transaction involved in the deadlock using Wait-For-Graph! Cyclic Detection algorithm involves tortoise and hare algorithm ![Wait-For-Graph](https://media.geeksforgeeks.org/wp-content/cdn-uploads/transaction1.png)  
 **Deadlock Prevention** to allocate resource in such a way that deadlock never occur.
   - Wait-Die Scheme - if T1<T2, T1 waits, else T1 restarts  
   When an older transaction tries to lock a DB element that has been locked by a younger transaction, it waits. When a younger transaction tries to lock a DB element that has been locked by an older transaction, it dies.
